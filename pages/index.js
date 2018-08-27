@@ -1,6 +1,7 @@
 import fetch from "isomorphic-unfetch";
 import Head from "next/head";
 import React, { Component } from "react";
+import { initGA, logPageView } from "../utils/analytics";
 
 const getDolarFromServer = async (baseUrl = "") => {
   const response = await fetch(`${baseUrl}/api/dolar`);
@@ -15,6 +16,8 @@ export default class Index extends Component {
   };
 
   componentDidMount() {
+    initGA();
+    logPageView();
     setInterval(async () => {
       this.setState({ dolar: await getDolarFromServer() });
     }, 1000 * 60);
