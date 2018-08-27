@@ -21,11 +21,16 @@ export default class Index extends Component {
   }
 
   state = {
-    dolar: this.props.dolar
+    dolar: this.props.dolar,
+    showEmojis: true
+  };
+
+  toggleUnits = () => {
+    this.setState({ showEmojis: !this.state.showEmojis });
   };
 
   render() {
-    const { dolar } = this.state;
+    const { dolar, showEmojis } = this.state;
     return (
       <div className="page">
         <Head>
@@ -35,7 +40,12 @@ export default class Index extends Component {
             content="initial-scale=1.0, width=device-width"
           />
         </Head>
-        <p className="dolar">{dolar} BsS/USD</p>
+        <p className="dolar">
+          {dolar}{" "}
+          <span className="unit" onClick={this.toggleUnits}>
+            {showEmojis ? "🇻🇪⃕🇺🇸" : "BsS/USD"}
+          </span>
+        </p>
         <style jsx>{`
           .page {
             color: white;
@@ -48,6 +58,11 @@ export default class Index extends Component {
           .dolar {
             font-size: 70px;
             font-size: 10vw;
+          }
+          .unit {
+            font-size: 40px;
+            font-size: 6vw;
+            cursor: pointer;
           }
         `}</style>
         <style global jsx>{`
