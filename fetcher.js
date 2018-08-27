@@ -22,7 +22,7 @@ async function getBitcoinPrice(currency) {
 
 async function startFetcher() {
   dolar = await getVesPerDollar();
-  setTimeout(async () => startFetcher(), 1000 * 60 * 5); // 5 min
+  setTimeout(() => startFetcher(), 1000 * 60 * 5); // 5 min
 }
 
 startFetcher();
