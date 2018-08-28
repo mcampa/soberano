@@ -60,6 +60,9 @@ export default class Index extends Component {
             justify-content: center;
             align-items: center;
             height: 100%;
+            background: url(https://abrilexame.files.wordpress.com/2018/08/venezuela3.jpg)
+              no-repeat center center fixed;
+            background-size: cover;
           }
           .price {
             font-size: 70px;
@@ -77,6 +80,7 @@ export default class Index extends Component {
             left: 0;
             right: 0;
             bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
           }
         `}</style>
         <style global jsx>{`
