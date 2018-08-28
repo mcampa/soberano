@@ -1,4 +1,8 @@
 const fetch = require("isomorphic-unfetch");
+const MAX_CHART_VALUES = 20;
+const FETCH_INTERVAL = 1000 * 60 * 5; // 5 min
+
+let chartData = [];
 let vesUsdPrice = null;
 
 async function getPrice(type = "buy", currency = "usd") {
@@ -54,10 +58,15 @@ async function startFetcher() {
   ]);
 
   vesUsdPrice = results[1] > 0 ? results[0] / results[1] : undefined;
+  chartData.push([new Date().valueOf(), vesUsdPrice]);
+
+  if (chartData.length > MAX_CHART_VALUES) {
+    chartData = chartData.slice(chartData.length - MAX_CHART_VALUES);
+  }
   // console.log(results);
-  setTimeout(() => startFetcher(), 1000 * 60 * 2); // 2 min
+  setTimeout(() => startFetcher(), FETCH_INTERVAL);
 }
 
 startFetcher();
 
-module.exports = () => vesUsdPrice;
+module.exports = () => ({ price: vesUsdPrice, chartData });

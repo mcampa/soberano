@@ -1,6 +1,6 @@
 const next = require("next");
 const express = require("express");
-const getPrice = require("./fetcher");
+const getData = require("./fetcher");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -8,7 +8,7 @@ const server = express();
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  server.get("/api/ves-usd", (req, res) => res.send({ price: getPrice() }));
+  server.get("/api/ves-usd", (req, res) => res.send(getData()));
   server.use((req, res) => {
     handle(req, res);
   });

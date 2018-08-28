@@ -3,32 +3,38 @@ import Head from "next/head";
 import React, { Component } from "react";
 import { initGA, logPageView } from "../utils/analytics";
 
+import { Chart, Axis, Series, Tooltip, Cursor, Line } from "react-charts";
+import timestamp from "time-stamp";
+
 const getVesUsdFromServer = async (baseUrl = "") => {
   const response = await fetch(`${baseUrl}/api/ves-usd`);
-  const { price } = await response.json();
-  return price;
+  const { price, chartData = [] } = await response.json();
+  return { price, chartData };
 };
 
 export default class Index extends Component {
   static getInitialProps = async ({ req }) => {
     const baseUrl = req ? `${req.protocol}://${req.get("Host")}` : "";
-    return { price: await getVesUsdFromServer(baseUrl) };
+    const { price, chartData } = await getVesUsdFromServer(baseUrl);
+    return { price, chartData };
   };
 
   componentDidMount() {
     initGA();
     logPageView();
     setInterval(async () => {
-      this.setState({ price: await getVesUsdFromServer() });
-    }, 1000 * 60);
+      const { price, chartData } = await getVesUsdFromServer();
+      this.setState({ price, chartData });
+    }, 1000 * 60 * 2);
   }
 
   state = {
     price: this.props.price,
+    chartData: this.props.chartData,
     invert: false
   };
 
-  toggleUnits = () => {
+  _toggleUnits = () => {
     this.setState({ invert: !this.state.invert });
   };
 
@@ -42,11 +48,60 @@ export default class Index extends Component {
     return invert ? "USD/BsS" : "BsS/USD";
   };
 
+  _renderStyles = () => {
+    return (
+      <>
+        <style jsx>{`
+          .page {
+            color: white;
+            font-family: helvetica;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+          }
+          .price {
+            font-size: 70px;
+            font-size: 10vw;
+            z-index: 1;
+          }
+          .unit {
+            font-size: 20px;
+            font-size: 3vw;
+            cursor: pointer;
+          }
+          .chart {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+          }
+        `}</style>
+        <style global jsx>{`
+          html,
+          body,
+          #__next {
+            background: black;
+            margin: 0;
+            height: 100%;
+          }
+        `}</style>
+      </>
+    );
+  };
+
   render() {
-    const { price } = this.state;
+    const { price, chartData } = this.state;
     if (price === undefined) {
-      return <div>Error</div>;
+      return <div>😫</div>;
     }
+
+    const datums = chartData.map(([timestamp, value]) => ({
+      x: new Date(timestamp),
+      y: value
+    }));
 
     return (
       <div className="page">
@@ -60,40 +115,29 @@ export default class Index extends Component {
             content="initial-scale=1.0, width=device-width"
           />
         </Head>
+        {this._renderStyles()}
+        <div className="chart">
+          <Chart
+            className="chart"
+            data={[
+              {
+                label: "BsS/USD",
+                datums
+              }
+            ]}
+          >
+            <Axis primary type="time" />
+            <Axis type="linear" max="300" />
+            <Series type={Line} />
+            <Tooltip />
+          </Chart>
+        </div>
         <p className="price">
           {this._getReadablePrice()}
-          <span className="unit" onClick={this.toggleUnits}>
+          <span className="unit" onClick={this._toggleUnits}>
             {this._getUnit()}
           </span>
         </p>
-        <style jsx>{`
-          .page {
-            color: white;
-            font-family: helvetica;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-          }
-          .price {
-            font-size: 70px;
-            font-size: 10vw;
-          }
-          .unit {
-            font-size: 20px;
-            font-size: 3vw;
-            cursor: pointer;
-          }
-        `}</style>
-        <style global jsx>{`
-          html,
-          body,
-          #__next {
-            background: black;
-            margin: 0;
-            height: 100%;
-          }
-        `}</style>
       </div>
     );
   }
