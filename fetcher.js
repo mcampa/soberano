@@ -1,8 +1,22 @@
 const fetch = require("isomorphic-unfetch");
-const MAX_CHART_VALUES = 20;
+const MAX_CHART_VALUES = 40;
 const FETCH_INTERVAL = 1000 * 60 * 5; // 5 min
 
 let chartData = [];
+// chartData = [
+//   [new Date().valueOf() - 60000 * 11, 80],
+//   [new Date().valueOf() - 60000 * 10, 90],
+//   [new Date().valueOf() - 60000 * 9, 87],
+//   [new Date().valueOf() - 60000 * 8, 86],
+//   [new Date().valueOf() - 60000 * 7, 89],
+//   [new Date().valueOf() - 60000 * 6, 90],
+//   [new Date().valueOf() - 60000 * 5, 91],
+//   [new Date().valueOf() - 60000 * 4, 89],
+//   [new Date().valueOf() - 60000 * 3, 88],
+//   [new Date().valueOf() - 60000 * 2, 89],
+//   [new Date().valueOf() - 60000 * 1, 88],
+//   [new Date().valueOf() - 60000 * 0, 99]
+// ];
 let vesUsdPrice = null;
 
 async function getPrice(type = "buy", currency = "usd") {

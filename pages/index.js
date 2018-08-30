@@ -97,15 +97,20 @@ export default class Index extends Component {
   };
 
   render() {
-    const { price, chartData } = this.state;
+    const { price, chartData, invert } = this.state;
     if (price === undefined) {
       return <div>😫</div>;
     }
 
-    const datums = chartData.map(([timestamp, value]) => ({
-      x: new Date(timestamp),
-      y: value
-    }));
+    const data = [
+      {
+        label: this._getUnit(),
+        datums: chartData.map(([timestamp, value]) => ({
+          x: new Date(timestamp),
+          y: invert ? 1 / value : value
+        }))
+      }
+    ];
 
     return (
       <div className="page">
@@ -121,19 +126,10 @@ export default class Index extends Component {
         </Head>
         {this._renderStyles()}
         <div className="chart">
-          <Chart
-            className="chart"
-            data={[
-              {
-                label: "BsS/USD",
-                datums
-              }
-            ]}
-          >
+          <Chart className="chart" data={data}>
             <Axis primary type="time" />
-            <Axis type="linear" max="300" />
+            <Axis type="linear" showGrid={false} />
             <Series type={Line} />
-            <Tooltip />
           </Chart>
         </div>
         <p className="price">
