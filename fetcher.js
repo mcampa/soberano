@@ -52,6 +52,8 @@ function filterOutliers(prices) {
 }
 
 async function startFetcher() {
+  setTimeout(() => startFetcher(), FETCH_INTERVAL);
+
   const results = await Promise.all([
     getPrice("buy", "ves"),
     getPrice("buy", "usd")
@@ -63,8 +65,6 @@ async function startFetcher() {
   if (chartData.length > MAX_CHART_VALUES) {
     chartData = chartData.slice(chartData.length - MAX_CHART_VALUES);
   }
-  // console.log(results);
-  setTimeout(() => startFetcher(), FETCH_INTERVAL);
 }
 
 startFetcher();
