@@ -1,23 +1,11 @@
 const fetch = require("isomorphic-unfetch");
-const MAX_CHART_VALUES = 40;
-const FETCH_INTERVAL = 1000 * 60 * 5; // 5 min
+const MAX_CHART_VALUES = 48;
+const FETCH_INTERVAL = 1000 * 60 * 60; // 60 min
 
-let chartData = [];
-// chartData = [
-//   [new Date().valueOf() - 60000 * 11, 80],
-//   [new Date().valueOf() - 60000 * 10, 90],
-//   [new Date().valueOf() - 60000 * 9, 87],
-//   [new Date().valueOf() - 60000 * 8, 86],
-//   [new Date().valueOf() - 60000 * 7, 89],
-//   [new Date().valueOf() - 60000 * 6, 90],
-//   [new Date().valueOf() - 60000 * 5, 91],
-//   [new Date().valueOf() - 60000 * 4, 89],
-//   [new Date().valueOf() - 60000 * 3, 88],
-//   [new Date().valueOf() - 60000 * 2, 89],
-//   [new Date().valueOf() - 60000 * 1, 88],
-//   [new Date().valueOf() - 60000 * 0, 99]
-// ];
-let vesUsdPrice = null;
+const store = {
+  chartData: [],
+  price: null
+};
 
 async function getPrice(type = "buy", currency = "usd") {
   const res = await fetch(
@@ -65,22 +53,35 @@ function filterOutliers(prices) {
   });
 }
 
+async function getInitialData() {
+  try {
+    const res = await fetch(`https://sober-ano.com/api/ves-usd`);
+    const { price, chartData } = await res.json();
+    store.price = price;
+    store.chartData = chartData;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function startFetcher() {
+  await getInitialData();
   setTimeout(() => startFetcher(), FETCH_INTERVAL);
 
   const results = await Promise.all([
     getPrice("buy", "ves"),
     getPrice("buy", "usd")
   ]);
+  store.price = results[1] > 0 ? results[0] / results[1] : undefined;
+  store.chartData.push([new Date().valueOf(), store.price]);
 
-  vesUsdPrice = results[1] > 0 ? results[0] / results[1] : undefined;
-  chartData.push([new Date().valueOf(), vesUsdPrice]);
-
-  if (chartData.length > MAX_CHART_VALUES) {
-    chartData = chartData.slice(chartData.length - MAX_CHART_VALUES);
+  if (store.chartData.length > MAX_CHART_VALUES) {
+    store.chartData = store.chartData.slice(
+      store.chartData.length - MAX_CHART_VALUES
+    );
   }
 }
 
 startFetcher();
 
-module.exports = () => ({ price: vesUsdPrice, chartData });
+module.exports = () => store;

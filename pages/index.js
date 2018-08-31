@@ -25,7 +25,7 @@ export default class Index extends Component {
     setInterval(async () => {
       const { price, chartData } = await getVesUsdFromServer();
       this.setState({ price, chartData });
-    }, 1000 * 60 * 2);
+    }, 1000 * 60 * 10); // 10min
   }
 
   state = {
@@ -127,9 +127,25 @@ export default class Index extends Component {
         {this._renderStyles()}
         <div className="chart">
           <Chart className="chart" data={data}>
-            <Axis primary type="time" />
-            <Axis type="linear" showGrid={false} />
+            <Axis primary type="time" showGrid={false} showTicks={false} />
+            <Axis type="linear" showGrid={false} showTicks={false} />
             <Series type={Line} />
+            <Tooltip>
+              {({ datum }) =>
+                datum ? (
+                  <div className="tootip">
+                    <div>
+                      {`${datum.primary.toLocaleDateString()} ${datum.primary.toLocaleTimeString()}`}
+                    </div>
+                    <div>
+                      {`${datum.secondary.toFixed(2)} ${data[0].label}`}
+                    </div>
+                  </div>
+                ) : (
+                  undefined
+                )
+              }
+            </Tooltip>
           </Chart>
         </div>
         <p className="price">
