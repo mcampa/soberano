@@ -90,6 +90,7 @@ export default class Index extends Component {
             background: black;
             margin: 0;
             height: 100%;
+            overflow: hidden;
           }
         `}</style>
       </>
